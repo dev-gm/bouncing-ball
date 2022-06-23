@@ -1,11 +1,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <sim.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <omp.h>
 
 int window_size[2] = { 1280, 720 },
 	circle_radius = 75;
@@ -30,35 +32,31 @@ int main(int argc, char **argv) {
 	}
 	sim_circle circles[num_of_circles];
 	size_t circles_index = 0;
-	bool circle_done_mass = false,
-		 circle_done_G = false,
-		 circle_done_density = false;
+	circles[0] = (sim_circle) {
+		.mass = 5000,
+		.gravitational_const = 167,
+		.air_resistance_const = 10,
+		.velocity = 0,
+		.center = 0
+	};
 	for (i = 1; i < (size_t) argc; ++i) {
 		if (argv[i][0] == '-' && argv[i][1] == '-') {
-			if (!circle_done_mass)
-				circles[circles_index].mass = 5000;
-			if (!circle_done_G)
-				circles[circles_index].gravitational_const = 1;
-			if (!circle_done_density)
-				circles[circles_index].medium_density_const = 5;
-			circles[circles_index].velocity = 0;
-			circles[circles_index].center = 0;
 			++circles_index;
-			circle_done_mass = false;
-			circle_done_G = false;
-			circle_done_density = false;
+			circles[circles_index] = (sim_circle) {
+				.mass = 5000,
+				.gravitational_const = 10,
+				.air_resistance_const = 10,
+				.velocity = 0,
+				.center = 0
+			};
 			continue;
 		}
-		if (memcmp("mass=", argv[i], 5) == 0) {
+		if (memcmp("mass=", argv[i], 5) == 0)
 			circles[circles_index].mass = atof(argv[i] + 5);
-			circle_done_mass = true;
-		} else if (memcmp("G=", argv[i], 2) == 0) {
-			circles[circles_index].gravitational_const = atof(argv[i] + 2);
-			circle_done_G = true;
-		} else if (memcmp("medium_density=", argv[i], 15) == 0) {
-			circles[circles_index].medium_density_const = atof(argv[i] + 15);
-			circle_done_density = true;
-		}
+		else if (memcmp("G=", argv[i], 2) == 0)
+			circles[circles_index].gravitational_const *= atof(argv[i] + 2);
+		else if (memcmp("air_resistance=", argv[i], 15) == 0)
+			circles[circles_index].air_resistance_const = atof(argv[i] + 15);
 	}
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0) {
 		fprintf(stderr, "Failed to initialize simulation: %s", SDL_GetError());
@@ -109,7 +107,8 @@ int main(int argc, char **argv) {
 				circle_radius
 			);
 			first_time = !first_time;
-			fprintf(stderr, "circle_result: gravity = %Lf, air resistance = %Lf\n", circle_result.forces[0].force, circle_result.forces[1].force);
+			fprintf(stderr, "gravity = %lld\n", circle_result.forces[0].force);
+			fprintf(stderr, "air resistance = %lld\n\n", circle_result.forces[1].force);
 			prev_millis[i] = now_millis[i];
 			filledCircleRGBA(
 				renderer,

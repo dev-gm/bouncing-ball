@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-typedef long double sim_vec;
+typedef signed long long sim_vec;
 typedef uint32_t sim_time;
 
 typedef struct {
@@ -21,7 +21,7 @@ typedef struct {
 
 typedef struct {
 	sim_vec gravitational_const,
-			medium_density_const;
+			air_resistance_const;
 	sim_vec mass, center, velocity;
 } sim_circle;
 

@@ -1,11 +1,11 @@
 IDIR=include
 CC=gcc
-CFLAGS=-I$(IDIR) -Wall -Wextra -Werror -pedantic -pedantic-errors -g
+CFLAGS=-I$(IDIR) -Wall -Wextra -Werror -pedantic -pedantic-errors -g -fopenmp
 
 ODIR=obj
 SDIR=src
 
-LIBS=-lSDL2 -lSDL2_gfx
+LIBS=-lSDL2 -lSDL2_gfx -lSDL2_ttf
 
 _OBJ=sim.o main.o 
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
