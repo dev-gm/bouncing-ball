@@ -4,6 +4,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <sim.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -123,7 +124,7 @@ int main(int argc, char **argv) {
 			fprintf(energy_file, "%lld\"potential\"\n", (sim_vec) (circles[i].mass * 9.8 * window_size[1]));
 			fprintf(energy_file, "%lld\"kinetic\"\n\n", (sim_vec) (0.5 * circles[i].mass * circles[i].velocity * circles[i].velocity));
 			printf("potential energy = %lld\n", (sim_vec) (circles[i].mass * 9.8 * window_size[1]));
-			printf("kinetic energy = %lld\n\n", (sim_vec) (0.5 * circles[i].mass * circles[i].velocity * circles[i].velocity));
+			printf("kinetic energy = %lld\n\n", (sim_vec) (circles[i].mass * 0.5 * pow(circles[i].velocity, 2)));
 			prev_millis[i] = now_millis[i];
 			filledCircleRGBA(
 				renderer,
