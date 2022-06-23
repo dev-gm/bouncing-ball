@@ -1,6 +1,6 @@
 IDIR=include
 CC=gcc
-CFLAGS=-I$(IDIR) -Wall -Wextra -Werror -pedantic -pedantic-errors -g -fopenmp
+CFLAGS=-I$(IDIR) -Wall -Wextra -Werror -pedantic -pedantic-errors -g
 
 ODIR=obj
 SDIR=src

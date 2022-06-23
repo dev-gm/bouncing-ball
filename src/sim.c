@@ -1,5 +1,4 @@
 #include <sim.h>
-#include <stdio.h>
 
 sim_circle_run_result sim_circle_run(
 	sim_circle *self,
@@ -23,10 +22,8 @@ sim_circle_run_result sim_circle_run(
 	if (!start) {
 		self->velocity += (((result.forces[0].force + result.forces[1].force) / self->mass) * delta) / 1000;
 		if (self->center + radius - radius >= height)
-			self->velocity = -self->velocity * 0.8;
-		fprintf(stderr, "velocity: %lld\n", self->velocity);
+			self->velocity = -self->velocity;
 		self->center += (self->velocity * delta) / 1000;
-		fprintf(stderr, "center: %lld\n", self->center);
 	}
 	return result;
 } 

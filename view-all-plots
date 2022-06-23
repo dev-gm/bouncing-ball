@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./view-plot forces
+./view-plot center
+./view-plot velocity
+./view-plot energy

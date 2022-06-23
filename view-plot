@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "set terminal png
+plot 'out-data/$1.data'
+"
+
+echo "set terminal png
+plot 'out-data/$1.data'
+" | gnuplot > out-data/$1.png
+
+firefox --new-tab $(realpath out-data/$1.png)

@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <omp.h>
 
 int window_size[2] = { 1280, 720 },
 	circle_radius = 75;
@@ -34,7 +33,7 @@ int main(int argc, char **argv) {
 	size_t circles_index = 0;
 	circles[0] = (sim_circle) {
 		.mass = 5000,
-		.gravitational_const = 167,
+		.gravitational_const = 1,//167,
 		.air_resistance_const = 10,
 		.velocity = 0,
 		.center = 0
@@ -89,6 +88,10 @@ int main(int argc, char **argv) {
 	sim_time prev_millis[num_of_circles], now_millis[num_of_circles];
 	sim_circle_run_result circle_result;
 	bool first_time = true;
+	FILE *force_file = fopen("out-data/forces.data", "w+");
+	FILE *center_file = fopen("out-data/center.data", "w+");
+	FILE *velocity_file = fopen("out-data/velocity.data", "w+");
+	FILE *energy_file = fopen("out-data/energy.data", "w+");
 	for (;;) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT)
@@ -106,9 +109,21 @@ int main(int argc, char **argv) {
 				window_size[1],
 				circle_radius
 			);
-			first_time = !first_time;
-			fprintf(stderr, "gravity = %lld\n", circle_result.forces[0].force);
-			fprintf(stderr, "air resistance = %lld\n\n", circle_result.forces[1].force);
+			first_time = false;
+			if (circles[i].velocity == 0 && circles[i].center >= window_size[1])
+				goto end;
+			fprintf(force_file, "%lld \"gravity\"\n", circle_result.forces[0].force);
+			fprintf(force_file, "%lld\"air resistance\"\n\n", circle_result.forces[1].force);
+			printf("gravity = %lld\n", circle_result.forces[0].force);
+			printf("air resistance = %lld\n\n", circle_result.forces[1].force);
+			fprintf(center_file, "%lld\"center\"\n", window_size[1] - circles[i].center);
+			fprintf(velocity_file, "%lld\"velocity\"\n\n", circles[i].velocity);
+			printf("center = %lld\n", window_size[1] - circles[i].center);
+			printf("velocity = %lld\n\n", circles[i].velocity);
+			fprintf(energy_file, "%lld\"potential\"\n", (sim_vec) (circles[i].mass * 9.8 * window_size[1]));
+			fprintf(energy_file, "%lld\"kinetic\"\n\n", (sim_vec) (0.5 * circles[i].mass * circles[i].velocity * circles[i].velocity));
+			printf("potential energy = %lld\n", (sim_vec) (circles[i].mass * 9.8 * window_size[1]));
+			printf("kinetic energy = %lld\n\n", (sim_vec) (0.5 * circles[i].mass * circles[i].velocity * circles[i].velocity));
 			prev_millis[i] = now_millis[i];
 			filledCircleRGBA(
 				renderer,
@@ -121,6 +136,10 @@ int main(int argc, char **argv) {
 		SDL_RenderPresent(renderer);
 	}
 	end:;
+	fclose(force_file);
+	fclose(center_file);
+	fclose(velocity_file);
+	fclose(energy_file);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
