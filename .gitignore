@@ -3,3 +3,4 @@ obj/
 out
 test
 compile_commands.json
+out-data/
